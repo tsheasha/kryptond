@@ -1,2 +1,10 @@
 # mrelay
-A deamon that relays a message from localhost on specified protocol to remote host on same/different protocol. Message format is user-defined with pluggable modules for each protocol.
+A deamon that forwards a message from localhost (listening on UDP or TCP) to remote host on an arbitraty protocol (*pluggable*). 
+
+Currently supported forwarders:
+  * HTTP
+  * Kafka
+  * TCP
+  * UDP
+  
+Message format is user-defined.
