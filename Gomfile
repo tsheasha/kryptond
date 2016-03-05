@@ -1,0 +1,12 @@
+gom 'github.com/Sirupsen/logrus', :commit => '446d1c146faa8ed3f4218f056fcd165f6bcfda81'
+gom 'github.com/alyu/configparser', :commit => '26b2fe18bee125de2a3090d6fadb7e280e63eba6'
+gom 'github.com/codegangsta/cli', :commit => '8cea2901d4b2c28b97001e67a7d2d60e227f3da6'
+gom 'github.com/davecheney/profile', :commit => 'c29d1a1565bca9fbeed5eed0e5d52ba78469a16b'
+gom 'github.com/fzipp/gocyclo', :commit => '6acd4345c835499920e8426c7e4e8d7a34f1bb83'
+gom 'github.com/golang/lint', :commit => '32a87160691b3c96046c0c678fe57c5bef761456'
+gom 'github.com/golang/lint/golint', :commit => '32a87160691b3c96046c0c678fe57c5bef761456'
+gom 'golang.org/x/tools/go/exact', :commit => '1cdaff4a02c554c9fb39dda0b56241c5f0949d91'
+gom 'golang.org/x/tools/go/gcimporter', :commit => '1cdaff4a02c554c9fb39dda0b56241c5f0949d91'
+gom 'golang.org/x/tools/go/types', :commit => '1cdaff4a02c554c9fb39dda0b56241c5f0949d91'
+gom "github.com/stretchr/testify/assert"
+gom "github.com/Shopify/sarama", :commit => '4ba9bba6adb6697bcec3841e1ecdfecf5227c3b9'

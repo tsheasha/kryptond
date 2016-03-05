@@ -1,0 +1,6 @@
+# Sysconfig file for relayd
+USER=relay
+CONFIG_FILE=/etc/relayd.conf
+LOG_FILE=/var/log/relayd/relayd.log
+ERR_LOG_FILE=/var/log/relayd/relayd.err
+LOG_LEVEL=info

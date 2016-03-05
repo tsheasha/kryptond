@@ -1,0 +1,14 @@
+[Unit]
+Description=relayd
+
+[Service]
+TimeoutStartSec=5
+EnvironmentFile=-/etc/sysconfig/relayd
+ExecStart=/usr/bin/relayd --config ${CONFIG_FILE} --log_file ${LOG_FILE} --log_level ${LOG_LEVEL}
+PIDFile=/var/run/relayd.pid
+User=relay
+
+
+[Install]
+WantedBy=multi-user.target
+

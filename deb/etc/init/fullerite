@@ -1,0 +1,21 @@
+description "Relayd message relay service"
+author "tarek.sheasha@gmail.com"
+start on runlevel [2345] and net-device-up IFACE!=lo
+stop on runlevel [!2345]
+
+script
+USER="relay"
+CONFIG_FILE="/etc/relayd.conf"
+LOG_FILE="/var/log/relayd/relayd.log"
+ERR_LOG_FILE="/var/log/relayd/relayd.err"
+LOG_LEVEL="info"
+
+if [ -e "/etc/default/relayd" ]; then
+  . /etc/default/relayd
+fi
+
+sudo -u "$USER" /usr/bin/relayd \
+  --config "$CONFIG_FILE" \
+  --log_level "$LOG_LEVEL" 2>&1 >>"$LOG_FILE" | \
+  sudo -u "$USER" tee --append "$ERR_LOG_FILE"
+end script

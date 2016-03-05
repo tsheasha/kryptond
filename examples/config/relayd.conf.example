@@ -1,0 +1,40 @@
+{
+    "listeners": {
+        "UDP": {
+            "port": "19090",
+            "maxPacketSize": "65536",
+            "readBuffer": "16777216"
+        },
+        "TCP": {
+            "port": "19091",
+            "readBuffer": "16777216"
+        }
+    },
+    "forwarders": {
+        "UDP": {
+            "server": "127.0.0.1",
+            "max_buffer_size": "100",
+            "port": "8080"
+        },
+        "TCP": {
+            "server": "127.0.0.1",
+            "max_buffer_size": "100",
+            "port": "8080"
+        },
+        "Kafka": {
+            "acks": "-1",
+            "ack_timeout": "5000",
+            "batch_n": "128",
+            "batch_t": "5",
+            "brokers": ["127.0.0.1:9092", "127.0.0.2:9092"],
+            "close_timeout": "0",
+            "compression": "none",
+            "retries": "10",
+            "stagger": "100"
+        }
+    },
+    "internalServer": {
+        "port":"29090",
+        "path":"/metrics"
+    }
+}
