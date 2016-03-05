@@ -52,11 +52,13 @@ func (u *UDP) Run() {
 	addr, err := net.ResolveUDPAddr("udp", u.server+":"+u.port)
 	if err != nil {
 		u.log.Error("Could not resolve remote UDP address")
+		return
 	}
 
 	u.conn, err = net.DialUDP("udp", nil, addr)
 	if err != nil {
 		u.log.Error("Could not connect to remote UDP host")
+		return
 	}
 
 	u.run(u.emitMsg)

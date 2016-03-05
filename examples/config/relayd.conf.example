@@ -2,11 +2,12 @@
     "listeners": {
         "UDP": {
             "port": "19090",
-            "maxPacketSize": "65536",
+            "maxMsgSize": "65536",
             "readBuffer": "16777216"
         },
         "TCP": {
             "port": "19091",
+            "maxMsgSize": "65536",
             "readBuffer": "16777216"
         }
     },

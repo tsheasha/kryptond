@@ -82,14 +82,16 @@ func (t *TCP) readMessage(conn *net.TCPConn) {
 	reader := bufio.NewReader(conn)
 	t.log.Info("Connection started: ", conn.RemoteAddr())
 
+	line := make([]byte, t.MaxMsgSize())
+
 	for {
-		line, err := reader.ReadBytes('\n')
+		n, err := reader.Read(line)
 		if err != nil {
-			t.log.Warn("Error while reading message", err)
+			t.log.Warn("Error while reading message: ", err)
 			break
 		}
-		t.log.Debug("Read: ", string(line))
-		t.Channel() <- line
+		t.log.Debug("Read: ", string(line[0:n]))
+		t.Channel() <- line[0:n]
 	}
 	t.log.Info("Connection closed: ", conn.RemoteAddr())
 }

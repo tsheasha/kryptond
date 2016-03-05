@@ -53,11 +53,13 @@ func (t *TCP) Run() {
 	addr, err := net.ResolveTCPAddr("tcp", t.server+":"+t.port)
 	if err != nil {
 		t.log.Error("Could not resolve remote TCP address")
+		return
 	}
 
 	t.conn, err = net.DialTCP("tcp", nil, addr)
 	if err != nil {
 		t.log.Error("Could not connect to remote TCP host")
+		return
 	}
 	t.conn.SetKeepAlive(true)
 	t.conn.SetKeepAlivePeriod(time.Duration(t.KeepAliveInterval()) * time.Second)

@@ -34,7 +34,7 @@ clean:
 deps:
 	@echo Getting dependencies...
 	@go get github.com/mattn/gom
-	@bin/gom install 
+	@bin/gom install > /dev/null
 
 $(RELAYD): $(SOURCES) deps
 	@echo Building $(RELAYD)...

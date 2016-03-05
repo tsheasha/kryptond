@@ -10,6 +10,10 @@ const (
 	// DefaultMaxBufferSize indicates the read buffer
 	// for the socket on the OS level
 	DefaultMaxBufferSize = 16777216
+
+	// DefaultMaxMsgSize indicates the maximum message
+	// size to be received by a listener
+	DefaultMaxMsgSize = 65536
 )
 
 var defaultLog = l.WithFields(l.Fields{"app": "relayd", "pkg": "listener"})
@@ -20,8 +24,9 @@ type Listener interface {
 	Configure(map[string]interface{})
 
 	// taken care of by the base class
-	Name() string
 	Channel() chan []byte
+	MaxMsgSize() int
+	Name() string
 	ReadBuffer() int
 }
 
@@ -55,6 +60,7 @@ func New(name string) Listener {
 type baseListener struct {
 	// fulfill most of the rote parts of the listener interface
 	channel    chan []byte
+	maxMsgSize int
 	name       string
 	readBuffer int
 
@@ -67,6 +73,11 @@ func (l *baseListener) configureCommonParams(configMap map[string]interface{}) {
 	if b, exists := configMap["readBuffer"]; exists {
 		l.readBuffer = config.GetAsInt(b, DefaultMaxBufferSize)
 	}
+
+	l.maxMsgSize = DefaultMaxMsgSize
+	if m, exists := configMap["maxMsgSize"]; exists {
+		l.maxMsgSize = config.GetAsInt(m, DefaultMaxMsgSize)
+	}
 }
 
 // Channel : the channel on which the listener should send messages
@@ -77,6 +88,11 @@ func (l baseListener) Channel() chan []byte {
 // ReadBuffer : the OS level protocol socket buffer
 func (l baseListener) ReadBuffer() int {
 	return l.readBuffer
+}
+
+// MaxMsgSize : max size of incoming message
+func (l baseListener) MaxMsgSize() int {
+	return l.maxMsgSize
 }
 
 // Name : the name of the listener

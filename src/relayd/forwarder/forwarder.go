@@ -4,8 +4,6 @@ import (
 	"relayd/config"
 	"sync/atomic"
 
-	"runtime"
-
 	l "github.com/Sirupsen/logrus"
 )
 
@@ -51,34 +49,6 @@ func NewInternalMetrics() *InternalMetrics {
 	inst.Counters = make(map[string]float64)
 	inst.Gauges = make(map[string]float64)
 	return inst
-}
-
-// Buffer is the circular buffer of messages to be forwarded
-type Buffer struct {
-	padding1           [8]uint64
-	lastCommittedIndex uint64
-	padding2           [8]uint64
-	nextFreeIndex      uint64
-	padding3           [8]uint64
-	readerIndex        uint64
-	padding4           [8]uint64
-	contents           [][]byte
-	padding5           [8]uint64
-	queueSize          uint64
-	padding6           [8]uint64
-	indexMask          uint64
-	padding7           [8]uint64
-}
-
-// NewBuffer initializes the circular buffer with the proper settings
-func NewBuffer(size int) *Buffer {
-	return &Buffer{
-		lastCommittedIndex: 0,
-		nextFreeIndex:      1,
-		readerIndex:        1,
-		contents:           make([][]byte, uint64(size)),
-		indexMask:          uint64(size) - 1,
-	}
 }
 
 // Forwarder defines the interface of a generic forwarder.
@@ -158,7 +128,7 @@ func (base *BaseForwarder) SetKeepAliveInterval(value int) {
 func (base *BaseForwarder) InitListeners(globalConfig config.Config) {
 	lietenerChannels := make(map[string]chan []byte)
 	for name := range globalConfig.Listeners {
-		lietenerChannels[name] = make(chan []byte, 1)
+		lietenerChannels[name] = make(chan []byte, base.MaxBufferSize())
 	}
 	base.SetListenerChannels(lietenerChannels)
 }
@@ -201,59 +171,24 @@ func (base *BaseForwarder) configureCommonParams(configMap map[string]interface{
 
 func (base *BaseForwarder) run(emitFunc func([]byte) bool) {
 	for k := range base.ListenerChannels() {
-		msgBuffer := NewBuffer(base.MaxBufferSize())
-		go base.listenForMsgs(msgBuffer, base.ListenerChannels()[k])
-		go base.emitMsgs(msgBuffer, emitFunc)
+		go base.listenForMsgs(emitFunc, base.ListenerChannels()[k])
 	}
 }
 
 func (base *BaseForwarder) listenForMsgs(
-	msgs *Buffer,
+	emitFunc func([]byte) bool,
 	c <-chan []byte) {
 
-	for {
-		select {
-		case incomingMsg := <-c:
-			base.log.Debug(base.Name(), " msg: ", incomingMsg)
-			msgs.Write(incomingMsg)
+	for incomingMsg := range c {
+		base.log.Debug(base.Name(), " msg: ", string(incomingMsg))
+		result := emitFunc(incomingMsg)
+
+		if result {
+			atomic.AddUint64(&base.msgsSent, 1)
+			base.log.Debug("Relay Successful")
+		} else {
+			base.log.Debug("Relay Failed")
+			atomic.AddUint64(&base.msgsDropped, 1)
 		}
 	}
-}
-
-func (base *BaseForwarder) emitMsgs(
-	msgs *Buffer,
-	emitFunc func([]byte) bool,
-) {
-	result := emitFunc(msgs.Read())
-
-	if result {
-		atomic.AddUint64(&base.msgsSent, 1)
-		base.log.Debug("Relay Successful")
-	} else {
-		base.log.Debug("Relay Failed")
-		atomic.AddUint64(&base.msgsDropped, 1)
-	}
-}
-
-func (buf *Buffer) Write(value []byte) {
-	var myIndex = atomic.AddUint64(&buf.nextFreeIndex, 1) - 1
-	//Wait for reader to catch up, so we don't clobber a slot which it is (or will be) reading
-	for myIndex > (buf.readerIndex + buf.queueSize - 2) {
-		runtime.Gosched()
-	}
-	//Write the item into it's slot
-	buf.contents[myIndex&buf.indexMask] = value
-	//Increment the lastCommittedIndex so the item is available for reading
-	for !atomic.CompareAndSwapUint64(&buf.lastCommittedIndex, myIndex-1, myIndex) {
-		runtime.Gosched()
-	}
-}
-
-func (buf *Buffer) Read() []byte {
-	var myIndex = atomic.AddUint64(&buf.readerIndex, 1) - 1
-	//If reader has out-run writer, wait for a value to be committed
-	for myIndex > buf.lastCommittedIndex {
-		runtime.Gosched()
-	}
-	return buf.contents[myIndex&buf.indexMask]
 }

@@ -1,8 +1,6 @@
 package listener
 
 import (
-	"relayd/config"
-
 	"net"
 
 	l "github.com/Sirupsen/logrus"
@@ -17,8 +15,7 @@ const (
 // UDP listener type
 type UDP struct {
 	baseListener
-	port          string
-	maxPacketSize int
+	port string
 }
 
 func init() {
@@ -34,7 +31,6 @@ func newUDP(channel chan []byte, log *l.Entry) Listener {
 
 	u.name = "UDP"
 	u.port = DefaultUDPListenerPort
-	u.maxPacketSize = 65536
 	return u
 }
 
@@ -44,9 +40,6 @@ func (u *UDP) Configure(configMap map[string]interface{}) {
 		u.port = port.(string)
 	}
 
-	if m, exists := configMap["maxPacketSize"]; exists {
-		u.maxPacketSize = config.GetAsInt(m, 65536)
-	}
 	u.configureCommonParams(configMap)
 }
 
@@ -67,13 +60,12 @@ func (u *UDP) Listen() {
 	defer conn.Close()
 
 	conn.SetReadBuffer(u.ReadBuffer())
-	u.log.Info("Connection started: ", conn.RemoteAddr())
-	line := make([]byte, u.maxPacketSize)
+	line := make([]byte, u.MaxMsgSize())
 
 	for {
 		n, err := conn.Read(line)
 		if err != nil {
-			u.log.Warn("Error while reading packet", err)
+			u.log.Warn("Error while reading message: ", err)
 			break
 		}
 		u.log.Debug("Read: ", string(line[0:n]))
