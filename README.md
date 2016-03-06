@@ -7,3 +7,5 @@ Currently supported forwarders:
   * UDP
   
 Message format is user-defined.
+
+   Copyright 2016 Tarek Sheasha
