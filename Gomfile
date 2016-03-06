@@ -10,3 +10,4 @@ gom 'golang.org/x/tools/go/gcimporter', :commit => '1cdaff4a02c554c9fb39dda0b562
 gom 'golang.org/x/tools/go/types', :commit => '1cdaff4a02c554c9fb39dda0b56241c5f0949d91'
 gom "github.com/stretchr/testify/assert"
 gom "github.com/Shopify/sarama", :commit => '4ba9bba6adb6697bcec3841e1ecdfecf5227c3b9'
+gom  "github.com/mikioh/tcp"

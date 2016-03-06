@@ -5,6 +5,7 @@ import (
 	"time"
 
 	l "github.com/Sirupsen/logrus"
+	"github.com/mikioh/tcp"
 )
 
 func init() {
@@ -50,17 +51,24 @@ func (t *TCP) Configure(configMap map[string]interface{}) {
 
 // Run runs the forwarder main loop
 func (t *TCP) Run() {
-	addr, err := net.ResolveTCPAddr("tcp", t.server+":"+t.port)
-	if err != nil {
-		t.log.Error("Could not resolve remote TCP address")
-		return
-	}
-
-	t.conn, err = net.DialTCP("tcp", nil, addr)
+	var c *tcp.Conn
+	var conn net.Conn
+	var err error
+	conn, err = net.Dial("tcp", t.server+":"+t.port)
 	if err != nil {
 		t.log.Error("Could not connect to remote TCP host")
 		return
 	}
+
+	c, err = tcp.NewConn(conn)
+	if err != nil {
+		t.log.Error("Could not cretae TCPConn")
+		conn.Close()
+		return
+	}
+
+	c.Cork()
+	t.conn = &c.TCPConn
 	t.conn.SetKeepAlive(true)
 	t.conn.SetKeepAlivePeriod(time.Duration(t.KeepAliveInterval()) * time.Second)
 
