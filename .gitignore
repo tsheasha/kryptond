@@ -10,3 +10,4 @@ src/golang.org/*
 .project
 .vagrant
 _vendor/
+relayd

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"relayd/config"
-	"relayd/forwarder"
+	"github.com/tsheasha/relayd/config"
+	"github.com/tsheasha/relayd/forwarder"
 )
 
 func startForwarders(c config.Config) (forwarders []forwarder.Forwarder) {

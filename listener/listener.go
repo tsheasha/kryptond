@@ -1,9 +1,8 @@
 package listener
 
 import (
-	"relayd/config"
-
 	l "github.com/Sirupsen/logrus"
+	"github.com/tsheasha/relayd/config"
 )
 
 const (

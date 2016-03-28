@@ -1,68 +1,52 @@
+CGO_ENABLED=0
+
 RELAYD      := relayd
 VERSION     := 0.0.1
-SRCDIR         := src
-PKGS        := \
-	$(RELAYD) \
-	$(RELAYD)/listener \
-	$(RELAYD)/forwarder \
-	$(RELAYD)/internalserver \
 
-SOURCES        := $(foreach pkg, $(PKGS), $(wildcard $(SRCDIR)/$(pkg)/*.go))
-OS	       := $(shell /usr/bin/lsb_release -si 2> /dev/null)
+SOURCES			:= *.go */*.go _vendor
+OS				:= $(shell /usr/bin/lsb_release -si 2> /dev/null)
 
 space :=
 space +=
 comma := ,
 
+GO15VENDOREXPERIMENT=0
+GOM_VENDOR_NAME=_vendor
+export GO15VENDOREXPERIMENT
+export GOM_VENDOR_NAME
+
 # symlinks confuse go tools, let's not mess with it and use -L
-GOPATH  := $(shell pwd -L)
-GOBIN   := $(GOPATH)/bin
-export GOPATH
-
-PATH := $(GOBIN):$(PATH)
-export PATH
-
-all: clean fmt lint $(RELAYD) test
+all: fmt lint $(RELAYD) test
 
 .PHONY: clean
 clean:
 	@echo Cleaning $(RELAYD)...
-	@rm -f $(RELAYD) bin/$(RELAYD)
-	@rm -rf pkg/*/$(RELAYD)
-	@rm -rf build relayd*.deb relayd*.rpm
+	@rm -rf build relayd*.deb relayd*.rpm relayd _vendor
 
 deps:
 	@echo Getting dependencies...
 	@go get github.com/mattn/gom
-	@bin/gom install > /dev/null
+	@gom install > /dev/null
 
 $(RELAYD): $(SOURCES) deps
 	@echo Building $(RELAYD)...
-	@bin/gom build -o bin/$(RELAYD) $@
+	@gom build -a -tags netgo -ldflags '-w' -o $(RELAYD) .
 
 test: tests
 tests: deps
 	@echo Testing $(RELAYD)
-	@for pkg in $(PKGS); do \
-		bin/gom test -cover $$pkg || exit 1;\
-	done
-
-coverage_report: deps
-	@echo Creating a coverage rport for $(RELAYD)
-	@$(foreach pkg, $(PKGS), bin/gom test -coverprofile=coverage.out -coverpkg=$(subst $(space),$(comma),$(PKGS)) $(pkg);)
-	@gom tool cover -html=coverage.out
-
+	@gom test -cover ./...
 
 fmt: deps $(SOURCES)
-	@$(foreach pkg, $(PKGS), bin/gom fmt $(pkg);)
+	@gom fmt ./...
 
 vet: deps $(SOURCES)
 	@echo Vetting $(RELAYD) sources...
-	@$(foreach pkg, $(PKGS), bin/gom vet $(pkg);)
+	@gom vet ./...
 
 lint: deps $(SOURCES)
 	@echo Linting $(RELAYD) sources...
-	@$(foreach src, $(SOURCES), _vendor/bin/golint $(src);)
+	@_vendor/bin/golint ./...
 
 cyclo: deps $(SOURCES)
 	@echo Checking code complexity...

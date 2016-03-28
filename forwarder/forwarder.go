@@ -1,10 +1,10 @@
 package forwarder
 
 import (
-	"relayd/config"
 	"sync/atomic"
 
 	l "github.com/Sirupsen/logrus"
+	"github.com/tsheasha/relayd/config"
 )
 
 // Some sane values to default things to

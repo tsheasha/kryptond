@@ -1,9 +1,6 @@
 package internalserver
 
 import (
-	"relayd/config"
-	"relayd/forwarder"
-
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,6 +9,8 @@ import (
 	"runtime"
 
 	l "github.com/Sirupsen/logrus"
+	"github.com/tsheasha/relayd/config"
+	"github.com/tsheasha/relayd/forwarder"
 )
 
 const (

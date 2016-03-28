@@ -1,15 +1,14 @@
 package main
 
 import (
-	"relayd/config"
-	"relayd/internalserver"
-
 	"os"
 	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
 	"github.com/davecheney/profile"
+	"github.com/tsheasha/relayd/config"
+	"github.com/tsheasha/relayd/internalserver"
 )
 
 const (

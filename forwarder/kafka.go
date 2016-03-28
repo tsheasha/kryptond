@@ -1,13 +1,12 @@
 package forwarder
 
 import (
-	"relayd/config"
-
 	"strings"
 	"time"
 
 	"github.com/Shopify/sarama"
 	l "github.com/Sirupsen/logrus"
+	"github.com/tsheasha/relayd/config"
 )
 
 func init() {

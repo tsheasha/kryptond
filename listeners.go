@@ -1,9 +1,9 @@
 package main
 
 import (
-	"relayd/config"
-	"relayd/forwarder"
-	"relayd/listener"
+	"github.com/tsheasha/relayd/config"
+	"github.com/tsheasha/relayd/forwarder"
+	"github.com/tsheasha/relayd/listener"
 )
 
 func startListeners(c config.Config) (listeners []listener.Listener) {
